@@ -1,297 +1,132 @@
 # PadiSquare - E-Commerce Shop Application
 
-## Overview
-
-PadiSquare is a modern, feature-rich e-commerce platform built with Next.js 16, React 19, and Redux Toolkit. It provides a seamless shopping experience with advanced product discovery, real-time search, sorting capabilities, and infinite scrolling for optimal performance.
-
-## Project Architecture
-
-### Tech Stack
-
-- **Frontend Framework**: Next.js 16.1.6 with App Router
-- **UI Library**: React 19.2.3
-- **State Management**: Redux Toolkit with Redux Persist
-- **Styling**: Tailwind CSS 4 with class-variance-authority
-- **Animations**: Framer Motion 12.26.2
-- **API Communication**: Redux Toolkit Query
-- **Type Safety**: TypeScript 5
-- **Icons**: Lucide React & React Icons
-- **Utilities**: Clsx, use-debounce, react-intersection-observer
-
-### Folder Structure
-
-```
-padisquare/
-├── app/                          # Next.js app directory
-│   ├── layout.tsx               # Root layout with Redux provider
-│   ├── page.tsx                 # Homepage
-│   ├── StoreProvider.tsx        # Redux store configuration
-│   ├── globals.css              # Global styles
-│   └── site/
-│       └── [shopId]/
-│           └── page.tsx         # Dynamic shop page
-├── features/                    # Feature modules
-│   ├── components/
-│   │   ├── NavBar.tsx          # Navigation component
-│   │   └── index.ts            # Component exports
-│   └── shop/                   # Shop feature module
-│       ├── components/
-│       │   ├── SingleShop.tsx              # Main shop container
-│       │   ├── Header.tsx                  # Hero header section
-│       │   ├── ProductCards.tsx           # Product grid with search/sort
-│       │   ├── ProductCard.tsx            # Individual product card
-│       │   ├── ProductCardLoader.tsx      # Skeleton loader for single card
-│       │   ├── ProductCardsLoader.tsx     # Skeleton loader for grid
-│       │   ├── ProductNotFound.tsx        # Empty state
-│       │   └── ProductError.tsx           # Error state
-│       ├── data/
-│       │   ├── shopAPI.ts                 # RTK Query endpoints
-│       │   └── shopSlice.ts               # Redux slice & state management
-│       └── types/
-│           └── index.d.ts                 # TypeScript definitions
-├── components/                  # Reusable UI components
-│   └── ui/
-│       ├── input.tsx           # Input field (shadcn/ui)
-│       ├── select.tsx          # Select dropdown (shadcn/ui)
-│       └── skeleton.tsx        # Skeleton loader (shadcn/ui)
-├── store/                      # Global store configuration
-│   ├── store.ts               # Redux store setup with persistence
-│   ├── hooks.ts               # Custom Redux hooks
-│   ├── ShopAPI.ts             # RTK Query API base configuration
-│   └── ErrorHandler.ts        # Centralized error handling
-├── lib/
-│   └── utils.ts               # Utility functions
-└── types/
-    └── index.d.ts             # Global TypeScript definitions
-```
-
-## Key Features Implemented
-
-### 1. **Product Display & Discovery**
-- Dynamic product grid displaying items from the backend API
-- Responsive design that works on mobile, tablet, and desktop
-- Smooth animations and transitions using Framer Motion
-- Custom product cards with images, pricing, brand, and availability info
-
-### 2. **Search Functionality**
-- Real-time search with debounced input (500ms delay)
-- Separate API endpoint for search queries (`/search`)
-- Automatic state synchronization with Redux
-- Instantly filters products as user types
-
-### 3. **Sorting Options**
-- **Recent**: Default sort by creation date (descending)
-- **Low to High**: Sort products by price in ascending order
-- **High to Low**: Sort products by price in descending order
-- Dynamic query parameter generation based on selected sort option
-
-### 4. **Infinite Scroll Pagination**
-- Automatically loads more products as user scrolls near bottom
-- Uses `react-intersection-observer` to detect when to fetch more
-- Prevents duplicate requests and shows loading state
-- Gracefully stops when all products are loaded
-
-### 5. **Loading States**
-- Skeleton loaders for initial product cards and grid
-- Custom loader component for "loading more" state
-- Smooth loading indicators provide visual feedback
-
-### 6. **Error Handling**
-- Centralized error handling in `ErrorHandler.ts`
-- Custom error components that display user-friendly messages
-- Graceful fallbacks for network failures
-- Redux state tracks error messages
-
-### 7. **Empty/Not Found State**
-- Custom component displays when no products match search criteria
-- Helps user understand why results are empty
-
-### 8. **State Management**
-- Redux Toolkit for centralized state management
-- Redux Persist for persisting shop state across sessions
-- Separate slices for organized state logic
-- RTK Query for efficient data fetching and caching
-
-### 9. **Navigation**
-- Dynamic shop routing with `[shopId]` parameter
-- NavBar component for brand and navigation
-- Hero header section with marketing copy and CTA button
-
-## State Management Details
-
-### Redux Slices
-
-**Shop Slice** (`shopSlice.ts`):
-```
-- products: Product[] - Array of fetched products
-- fetchProductsLoading: boolean - Loading state for initial fetch
-- fetchProductsError: string - Error message from fetch
-- fetchMoreProductsLoading: boolean - Loading state for pagination
-- fetchMoreProductsError: string - Error message from pagination
-- skip: number - Current pagination offset
-- totalProducts: number - Total products available
-- limit: number - Products per page (default: 20)
-- search: string - Current search query
-- sort: string - Current sort option
-```
-
-**Actions**:
-- `setSkip()` - Update pagination offset
-- `setAppSearch()` - Update search query
-- `setAppSort()` - Update sort option
-
-### RTK Query Endpoints
-
-**fetchProducts**: Initial product fetch with search/sort parameters
-**fetchMoreProducts**: Lazy-loaded endpoint for pagination
-
-## Data Flow
-
-```
-User Input (Search/Sort/Scroll)
-    ↓
-Redux Action Dispatch
-    ↓
-State Update (Redux Slice)
-    ↓
-RTK Query Endpoint Triggered
-    ↓
-API Request with Updated Params
-    ↓
-Response Data Merged into State
-    ↓
-Components Re-render with New Data
-```
-
-## Component Hierarchy
-
-```
-SingleShop (Main Container)
-├── NavBar (Header Navigation)
-├── Header (Hero Section)
-└── ProductCards (Main Content)
-    ├── Search Input
-    ├── Sort Dropdown
-    ├── ProductCardsLoader (Skeleton Grid - initial load)
-    ├── ProductCards Grid
-    │   └── ProductCard (Individual Items)
-    ├── ProductNotFound (Empty State)
-    ├── ProductError (Error State)
-    └── Infinite Scroll Trigger
-```
-
-## Why These Choices?
+## Why These Decisions?
 
 ### Next.js App Router
-- **Why**: Modern routing with better performance, built-in code splitting, and SEO optimization
-- **Implementation**: Dynamic routes with `[shopId]` for multiple shops
+**Why**: Modern routing provides better performance, built-in code splitting, and SEO optimization out of the box. The App Router paradigm is more intuitive than Pages Router for organizing complex applications.
+
+**Decision**: Used dynamic routes with `[shopId]` to support multiple shop instances without duplicating code.
+
+---
 
 ### Redux Toolkit + Redux Persist
-- **Why**: Predictable state management, easy debugging, and automatic session persistence
-- **Implementation**: Configured to persist shop state but exclude API cache and certain data
+**Why**: Redux provides a predictable, centralized state management system that makes debugging easier and enables time-travel debugging. Redux Persist automatically maintains state across browser sessions without writing boilerplate code, improving user experience.
 
-### RTK Query
-- **Why**: Built-in caching, automatic request deduplication, and simplified async operations
-- **Implementation**: Injected endpoints for products fetching to keep API concerns separated
+**Decision**: Configured to persist shop state (products, search, sort) but excluded RTK Query API cache to avoid stale data, and excluded certain temporary UI states to keep the store clean.
 
-### Framer Motion
-- **Why**: Smooth, performant animations enhance UX without heavy CSS dependencies
-- **Implementation**: Used for component entrance animations and interactive button effects
+---
 
-### Infinite Scroll
-- **Why**: Better performance than pagination and improved UX for mobile users
-- **Implementation**: `react-intersection-observer` detects when user reaches bottom
+### Redux Toolkit Query (RTK Query)
+**Why**: RTK Query eliminates manual data fetching logic, handles caching automatically, deduplicates in-flight requests, and generates hooks that integrate seamlessly with Redux. This reduces boilerplate significantly compared to traditional Redux async thunks.
 
-### Debounced Search
-- **Why**: Reduces API calls and server load while typing
-- **Implementation**: 500ms delay prevents excessive requests during rapid keystrokes
+**Decision**: Injected endpoints specifically for product fetching to keep API concerns separated from business logic, making the codebase more maintainable.
 
-### Tailwind CSS
-- **Why**: Utility-first approach enables rapid, consistent styling without writing custom CSS
-- **Implementation**: Combined with class-variance-authority for component-level styling
+---
+
+### Framer Motion for Animations
+**Why**: Provides smooth, performant animations that enhance perceived performance and user experience. More efficient than CSS-in-JS solutions and doesn't require heavy animation libraries.
+
+**Decision**: Used for component entrance animations (skeleton loaders → actual content) and interactive button effects to provide visual feedback without compromising performance.
+
+---
+
+### Infinite Scroll Pagination
+**Why**: Better UX than traditional pagination, especially on mobile devices. Users expect content to load seamlessly as they scroll. Improves perceived performance by loading data progressively.
+
+**Decision**: Implemented using `react-intersection-observer` to efficiently detect when the user scrolls near the bottom, triggering `useLazyFetchMoreProductsQuery` only when needed.
+
+---
+
+### Debounced Search (500ms)
+**Why**: Reduces unnecessary API calls during typing. Without debouncing, each keystroke triggers a request, causing server load, network overhead, and worse user experience.
+
+**Decision**: Set 500ms delay as a balance between responsiveness and server efficiency. Users typically type 4-6 characters per second, so this prevents ~80% of unnecessary requests.
+
+---
+
+### Tailwind CSS + Class Variance Authority
+**Why**: Tailwind's utility-first approach enables rapid styling without writing custom CSS. CVA adds component-level abstraction for consistent variant management.
+
+**Decision**: Combined Tailwind with Shadcn/UI components for a cohesive design system that's both fast to develop and maintainable.
+
+---
 
 ### Shadcn/UI Components
-- **Why**: Pre-built, accessible, and customizable components based on Radix UI
-- **Implementation**: Input, Select, and Skeleton components for consistent design
+**Why**: Pre-built, accessible components based on Radix UI primitives. They follow web accessibility standards, are customizable via CSS, and reduce the need to build components from scratch.
 
-## API Integration
+**Decision**: Used Input, Select, and Skeleton components to maintain design consistency across the application while keeping development velocity high.
 
-The application communicates with a backend API that provides:
+---
 
-### Endpoints
-- `GET /` - Fetch all products with pagination and filtering
-- `GET /search` - Search products by query
+### TypeScript
+**Why**: Catches bugs at compile time rather than runtime. Provides IDE autocomplete and better developer experience. Makes refactoring safer across a large codebase.
 
-### Query Parameters
-- `limit` - Number of products per page
-- `skip` - Pagination offset
-- `q` - Search query string
-- `sortBy` - Field to sort by (price, meta.createdAt)
-- `order` - Sort direction (asc, desc)
-- `select` - Fields to include in response
+**Decision**: Used strict type checking throughout the application, especially for Redux state shapes and API response types.
 
-### Response Format
-```typescript
-{
-  products: Product[],
-  skip: number,
-  total: number
-}
-```
+---
 
-## Getting Started
+### React Icons + Lucide React
+**Why**: Reduces bundle size compared to including SVGs manually. Provides tree-shakeable icon sets that only include icons actually used in the code.
 
-### Prerequisites
-- Node.js 18+
-- npm or yarn
+**Decision**: Used for loading indicators, search icons, and other UI elements to maintain visual consistency.
 
-### Installation
-```bash
-npm install
-```
+---
 
-### Development
-```bash
-npm run dev
-```
-Open [http://localhost:3000](http://localhost:3000) to view in browser.
+### Skeleton Loaders
+**Why**: Perceived performance improvement. Users perceive content loading faster when they see a skeleton placeholder instead of blank space.
 
-### Build for Production
-```bash
-npm run build
-npm start
-```
+**Decision**: Created reusable `ProductCardLoader` and `ProductCardsLoader` components that match product card dimensions exactly to reduce layout shift.
 
-### Linting
-```bash
-npm run lint
-```
+---
 
-## Performance Optimizations
+### Centralized Error Handling
+**Why**: Consistent error messaging across the application. Single source of truth for error formatting and user-friendly messages.
 
-1. **Image Optimization**: Next.js Image component for automatic optimization
-2. **Code Splitting**: Automatic route-based code splitting by Next.js
-3. **Debounced Search**: Reduces API calls and processing overhead
-4. **Skeleton Loaders**: Perceived performance improvement
-5. **Redis Persistence**: Maintains state across sessions
-6. **Lazy Queries**: `useLazyFetchMoreProductsQuery` for on-demand pagination
+**Decision**: Created `ErrorHandler.ts` to parse API errors and Redux promise rejections into user-readable messages, used by both initial fetch and infinite scroll pagination.
 
-## Future Enhancements
+---
 
-- Product filtering by category, brand, price range
-- Shopping cart functionality
-- User authentication and accounts
-- Wishlist feature
-- Product reviews and ratings
-- Advanced search with filters
-- Mobile app version
-- Performance metrics and analytics
+### Feature-Based File Organization
+**Why**: As the app grows, feature-based organization scales better than file-type organization (components/, pages/, etc.). Related code stays together, making it easier to find and modify features.
 
-## Contributing
+**Decision**: Organized shop functionality under `features/shop/` with components, data (Redux), and types colocated, making the shop feature independently manageable.
 
-Follow the existing patterns:
-- Keep components focused and single-responsibility
-- Use Redux for app-level state
-- Create feature modules for scalability
-- Use TypeScript for type safety
-- Follow Tailwind conventions for styling
+---
+
+## What Gets Persisted and Why
+
+**Persisted State:**
+- Products list
+- Search query
+- Sort preference
+- Pagination offset
+
+**Why**: Users expect their search/sort preferences and product view to persist when they leave and return to the shop. Improves UX.
+
+**Not Persisted:**
+- Loading states
+- Error states
+- RTK Query API cache
+
+**Why**: Loading/error states are transient and should reset. API cache shouldn't persist to avoid showing stale products on app reload.
+
+---
+
+## Performance Optimizations Implemented
+
+1. **Debounced Search** - Reduces API load during typing
+2. **Lazy Query Loading** - Products only fetched when needed via infinite scroll
+3. **Skeleton Loaders** - Perceived performance improvement during loading
+4. **Redux Persist Selective** - Only persists necessary state, keeps store lean
+5. **RTK Query Caching** - Automatic deduplication of in-flight requests
+6. **Next.js Code Splitting** - Each route loads only necessary code
+7. **Intersection Observer** - Efficient infinite scroll detection without scroll event listeners
+
+---
+
+## Trade-Offs Made
+
+- **Redux over Context API**: Added complexity upfront but provides better debugging, middleware support, and performance at scale
+- **Infinite Scroll over Pagination**: Better UX but harder to jump to specific pages
+- **RTK Query over Direct API Calls**: More opinionated but eliminates massive amounts of boilerplate
+- **Tailwind over CSS Modules**: Utility classes sometimes feel verbose but provide consistency and speed
