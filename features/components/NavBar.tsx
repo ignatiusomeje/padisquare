@@ -4,19 +4,17 @@ import Image from "next/image";
 import { FaRegUserCircle } from "react-icons/fa";
 import { IoCartOutline } from "react-icons/io5";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import { useDebounce } from "use-debounce";
-import { useAppDispatch } from "@/store/hooks";
-import { setAppSearch } from "../shop/data/shopSlice";
+import { useAppSearch } from "@/hooks/useSearch";
 
 const NavBar = ({ logo }: INavBarProp) => {
-  const dispatch = useAppDispatch();
-  const [search, setSearch] = useState("");
-  const [debouncedSearch] = useDebounce(search, 500);
+  const { search, setSearch } = useAppSearch();
+  // const dispatch = useAppDispatch();
+  // const [search, setSearch] = useState("");
+  // const [debouncedSearch] = useDebounce(search, 500);
 
-  useEffect(() => {
-    dispatch(setAppSearch(debouncedSearch));
-  }, [debouncedSearch]);
+  // useEffect(() => {
+  //   dispatch(setAppSearch(debouncedSearch));
+  // }, [debouncedSearch]);
 
   return (
     <motion.div

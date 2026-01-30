@@ -1,15 +1,9 @@
 "use client";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  useFetchProductsQuery,
-  useLazyFetchMoreProductsQuery,
-} from "../data/shopAPI";
+import { useAppDispatch } from "@/store/hooks";
 import ProductCard from "./ProductCard";
 import { AnimatePresence, motion } from "framer-motion";
 import ProductCardsLoader from "./ProductCardsLoader";
 import { LuLoaderCircle } from "react-icons/lu";
-import { useInView } from "react-intersection-observer";
-import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -18,56 +12,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { setAppSearch, setAppSort } from "../data/shopSlice";
+import { setAppSort } from "../data/shopSlice";
 import { Input } from "@/components/ui/input";
-import { useDebounce } from "use-debounce";
 import ProductNotFound from "./ProductNotFound";
 import ProductError from "./ProductError";
+import { useAppSearch } from "@/hooks/useSearch";
+import { useFetchProduct } from "@/hooks/useFetchProduct";
 
 const ProductCards = () => {
   const dispatch = useAppDispatch();
-  const products = useAppSelector((state) => state.Shop.products);
-  const fetchProductsError = useAppSelector(
-    (state) => state.Shop.fetchProductsError,
-  );
-  const fetchProductsLoading = useAppSelector(
-    (state) => state.Shop.fetchProductsLoading,
-  );
-  const totalProducts = useAppSelector((state) => state.Shop.totalProducts);
-  const skip = useAppSelector((state) => state.Shop.skip);
-  const limit = useAppSelector((state) => state.Shop.limit);
-  const fetchMoreProductsLoading = useAppSelector(
-    (state) => state.Shop.fetchMoreProductsLoading,
-  );
-  const sort = useAppSelector((state) => state.Shop.sort);
-  const AppSearch = useAppSelector((state) => state.Shop.search);
-  const [search, setSearch] = useState("");
-  const [debouncedSearch] = useDebounce(search, 500);
-
-  useEffect(() => {
-    dispatch(setAppSearch(debouncedSearch));
-  }, [debouncedSearch]);
-
-  const [FetchMoreProductsQuery] = useLazyFetchMoreProductsQuery();
-
-  useFetchProductsQuery({
-    url: AppSearch ? `/search` : `/`,
-    params: {
-      limit: limit,
-      // ...(skip && { skip }),
-      ...(AppSearch && { q: AppSearch }),
-      ...(sort && {
-        order: sort === `low` ? `asc` : sort === `high` ? `desc` : `desc`,
-        sortBy:
-          sort === `low`
-            ? `price`
-            : sort === `high`
-              ? `price`
-              : `meta.createdAt`,
-      }),
-      select: `title,category,price,brand,availabilityStatus,images,thumbnail,meta`,
-    },
-  });
+  const {
+    fetchMoreProductsLoading,
+    fetchProductsError,
+    fetchProductsLoading,
+    ref,
+    sort,
+    products,
+  } = useFetchProduct();
+  const { search, setSearch } = useAppSearch();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -85,35 +47,6 @@ const ProductCards = () => {
     visible: { opacity: 1, y: 0 },
     transition: { duration: 0.5, ease: "easeOut" },
   };
-
-  const { inView, ref } = useInView({
-    threshold: 0.5,
-  });
-
-  useEffect(() => {
-    if (!inView) return;
-    if (fetchMoreProductsLoading) return;
-    if (products.length >= totalProducts) return;
-
-    FetchMoreProductsQuery({
-      url: AppSearch ? `/search` : `/`,
-      params: {
-        limit,
-         skip: products.length,
-        ...(AppSearch && { q: AppSearch }),
-        ...(sort && {
-          order: sort === `low` ? `asc` : sort === `high` ? `desc` : `desc`,
-          sortBy:
-            sort === `low`
-              ? `price`
-              : sort === `high`
-                ? `price`
-                : `meta.createdAt`,
-          select: `title,category,price,brand,availabilityStatus,images,thumbnail,meta`,
-        }),
-      },
-    });
-  }, [inView]);
 
   return fetchProductsLoading ? (
     <ProductCardsLoader />
@@ -174,14 +107,8 @@ const ProductCards = () => {
                 {...(index === products.length - 1 && { ref: ref })}
               >
                 <ProductCard product={product} />{" "}
-                {/* remove motion from inside ProductCard now */}
               </motion.div>
             </AnimatePresence>
-            // <ProductCard
-            //   {...(index === products.length - 1 && { innerRef: ref })}
-            //   product={product}
-            //   key={index}
-            // />
           ))}
         </motion.div>
       )}
